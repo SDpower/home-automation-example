@@ -31,7 +31,6 @@
   },
   "author": "Patrick Barrett <patrickbarrett@exosite.com>",
   "dependencies": {
-    "example-app-minimum-node-version": "file:./node-version-restriction",
     "babel-core": "^6.5.1",
     "babel-loader": "^6.2.2",
     "babel-plugin-transform-object-rest-spread": "^6.6.5",
@@ -40,6 +39,7 @@
     "bluebird": "^3.4.1",
     "compression": "^1.6.1",
     "dotenv": "^2.0.0",
+    "example-app-minimum-node-version": "file:./node-version-restriction",
     "if-env": "^1.0.0",
     "json-loader": "^0.5.4",
     "jsonep": "0",
@@ -48,11 +48,14 @@
     "moment-timezone": "^0.5.1",
     "path": "^0.12.7",
     "react": "^15.1.0",
+    "react-cookie": "^0.4.8",
     "react-dom": "^15.1.0",
-    "react-redux": "^4.4.1",
+    "react-popout": "^0.5.3",
+    "react-redux": "^4.4.5",
     "react-router": "^2.0.0",
     "react-script-loader": "0.0.1",
     "react-tap-event-plugin": "^1.0.0",
+    "redux": "^3.5.2",
     "whatwg-fetch": "^1.0.0"
   },
   "devDependencies": {

@@ -1,5 +1,7 @@
 import AppBar from 'material-ui/AppBar';
 import FlatButton from 'material-ui/FlatButton';
+import FontIcon from 'material-ui/FontIcon';
+import ActionAndroid from 'material-ui/svg-icons/action/android';
 import LinearProgress from 'material-ui/LinearProgress';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
@@ -7,6 +9,7 @@ import { white } from 'material-ui/styles/colors';
 import React from 'react';
 import { Link } from 'react-router';
 import MessageBox from './MessageBox';
+import Popout from 'react-popout';
 
 const Login = ({ errorText, isAuthenticating, onSubmit }) => (
   <div className="auth-page">
@@ -63,6 +66,30 @@ const Login = ({ errorText, isAuthenticating, onSubmit }) => (
       </form>
 
       <FlatButton label="Forgot password?" primary style={{ width: '100%' }} />
+
+      <h3 style={{ textAlign: 'center' }}>Login With</h3>
+      <FlatButton
+        label="Amazon"
+        href="/social/handle/Amazon/loginurl"
+      />
+      <FlatButton
+        label="Facebook"
+        backgroundColor="#339cff"
+        hoverColor="#b3daff"
+        href="/social/handle/Facebook/loginurl"
+      />
+      <FlatButton
+        label="Google"
+        backgroundColor="#ff8566"
+        hoverColor="#ffc2b3"
+        href="/social/handle/Google/loginurl"
+      />
+      <FlatButton
+        label="GitHub"
+        backgroundColor="#70db70"
+        hoverColor="#c1f0c1"
+        href="/social/handle/GitHub/loginurl"
+      />
     </main>
     <footer className="version">
       Version 1.0.4

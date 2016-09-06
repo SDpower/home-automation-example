@@ -1,3 +1,89 @@
+--#ENDPOINT GET /social/handle/{consumer}/loginurl
+local consumer = request.parameters.consumer
+
+if consumer == nil then
+  response.code = 404
+  response.message = 'Not found'
+else
+local Url = User.getSocialLoginUrl({consumer=consumer})
+if Url.status ~= nil then
+  response.code = 404
+  response.message = 'Not found'
+else
+  response.headers["location"] = Url
+  response.code = 303
+end
+end
+
+--#ENDPOINT GET /social/handle/{consumer}
+results, err = to_json(request.parameters)
+resultd, err = from_json(results)
+local consumer = resultd.consumer
+if consumer == nil then
+  response.code = 404
+  response.message = 'Not found'
+else
+  local tokenstr = User.getSocialToken(resultd)
+  if tokenstr.status ~= nil then
+    response.code = 500
+    response.message = 'Get token error'
+  else
+    local requestInf = User.socialRequest({consumer=request.parameters.consumer, token=tokenstr})
+    if requestInf.status ~= nil then
+      response.code = 500
+      response.message = 'Get request error'
+    else
+      local userList = User.listUsers({filter = "email::like::" .. requestInf.email})
+      if table.getn(userList) == 0 then
+        local passwordSample = createpassword(12)
+        local ret = User.createUser({
+          email = requestInf.email,
+          name = requestInf.name,
+          password = passwordSample
+        })
+        User.activateUser({code = ret})
+        userList = User.listUsers({filter = "email::like::" .. requestInf.email})
+        if #userList == 1 and userList[1].id ~= nil then
+          local userId = userList[1].id
+          kv_ps_write(userId,passwordSample)
+          ret = User.getUserToken({
+            email = requestInf.email,
+            password = passwordSample
+          })
+          if ret ~= nil and ret.status_code ~= nil then
+            response.code = ret.status_code
+            response.message = ret.message
+          else
+            response.headers = {
+              ["Set-Cookie"] = "sid=" .. tostring(ret) .. "; path=/;",
+              ["location"] = "/"
+            }
+            response.code = 303
+          end
+        end
+      elseif #userList == 1 and userList[1].id ~= nil then
+        local userId = userList[1].id
+        local passwordSample = kv_ps_read(userId).value
+        ret = User.getUserToken({
+          email = requestInf.email,
+          password = passwordSample
+        })
+        if ret ~= nil and ret.status_code ~= nil then
+          response.code = ret.status_code
+          response.message = ret.message
+        else
+          response.headers = {
+            ["Set-Cookie"] = "sid=" .. tostring(ret) .. "; path=/;",
+            ["location"] = "/"
+          }
+          response.code = 303
+        end
+      end
+    end
+  end
+
+end
+
 --#ENDPOINT PUT /user/{email}
 local ret = User.createUser({
   email = request.parameters.email,
@@ -69,12 +155,12 @@ if user == nil or user.id == nil then
   return
 end
 
--- only add device if the Product event handler has 
+-- only add device if the Product event handler has
 -- heard from it (see event_handler/product.lua)
 device = kv_read_opt(sn, false)
 if device == nil then
   http_error(404, response)
-  return  
+  return
 end
 
 local owners = User.listRoleParamUsers({
@@ -170,7 +256,7 @@ if user ~= nil then
       if parameter.name == "sn" then
         local device_info = kv_read(parameter.value)
         if device_info == nil then
-          print("device_info returned from kv_read is nil in " .. 
+          print("device_info returned from kv_read is nil in " ..
             "GET /user/{email}/lightbulbs for sn " .. parameter.value)
         else
           if role.role_id == "owner" then
@@ -290,7 +376,7 @@ end
 http_error(403, response)
 --#ENDPOINT POST /lightbulb/{sn}
 -- write to one or more resources of lightbulb with serial number {sn}
--- Expects JSON object containing one or more properties in 
+-- Expects JSON object containing one or more properties in
 -- "state" | "humidity" | "temperature" with the values to be set.
 -- E.g. {"state": 1} to turn the lightbulb on
 local sn = tostring(request.parameters.sn)

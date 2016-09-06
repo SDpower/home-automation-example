@@ -1,5 +1,22 @@
+-- password generator
+function createpassword(x)
+  math.randomseed(os.time())
+	local a = {}
+	for count = 1, x do
+		a[#a+1] = string.char(math.random(33,126))
+	end
+	return table.concat(a)
+end
+-- reade password on KV
+function kv_ps_read(id)
+  return  Keystore.get({key = "pw_" .. id})
+end
+-- store password on KV
+function kv_ps_write(id, password)
+  Keystore.set({key = "pw_" .. id, value = password})
+end
 -- get current logged in user from webservice request
--- returns user table or nil if no user is contained 
+-- returns user table or nil if no user is contained
 -- in headers
 function currentUser(request)
   return currentUserFromHeaders(request.headers)
@@ -7,7 +24,7 @@ end
 
 -- determine the current user from the session information
 -- stored in webservice or websocket request headers.
--- returns user table or nil if no user is contained 
+-- returns user table or nil if no user is contained
 -- in headers
 function currentUserFromHeaders(headers)
   if type(headers.cookie) ~= "string" then
@@ -36,7 +53,7 @@ end
 
 -- default a particular key in a table to value
 -- if that index already exists, otherwise does nothing.
-function default(t, key, defaultValue) 
+function default(t, key, defaultValue)
   if not table.contains(t, key) then
     t[key] = defaultValue
   end
@@ -59,12 +76,12 @@ function kv_read_opt(sn, readDevice)
     -- and look up everything else.
     device = from_json(resp.value)
 
-    if device ~= nil then 
+    if device ~= nil then
       -- backward compatibility with old example versions
       if not table.contains(device, 'rid') then
-        device.rid = lookup_rid(device.pid, sn) 
+        device.rid = lookup_rid(device.pid, sn)
       end
-    
+
       if readDevice then
         -- if any resource values haven't been written in
         -- fetch the last value via the Device service
@@ -97,8 +114,8 @@ function device_read(pid, rid)
     table.insert(calls, {id=alias, procedure="read", arguments={{alias=alias}, {limit=1}}})
   end
   local rpcret = Device.rpcCall({
-    pid = pid, 
-    auth = {client_id = rid}, 
+    pid = pid,
+    auth = {client_id = rid},
     calls = calls})
 
   -- find and extract the read value from RPC response rpcret

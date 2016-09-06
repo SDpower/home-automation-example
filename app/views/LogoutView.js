@@ -4,10 +4,11 @@ import RaisedButton from 'material-ui/RaisedButton';
 import { white } from 'material-ui/styles/colors';
 import React from 'react';
 import { Link } from 'react-router';
+import cookie from 'react-cookie';
 
 export default class LogoutView extends React.Component {
   componentWillMount() {
-    // TODO: make an api endpoint to delete the session & delete the http cookie
+    cookie.remove('sid', { path: '/' });
   }
 
   render() {
